@@ -1,29 +1,30 @@
 from django.shortcuts import render
-from rest_framework.response import Response
-from rest_framework.decorators import api_view, renderer_classes
-from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer
-from rest_framework.response import Response
-from django.http import HttpRequest
-from django.shortcuts import render
 from rest_framework.views import APIView
 from . import operation
-from .serializers import SuccessSerializer
+from rest_framework.response import Response
 
 
 class Convert(APIView):
     def get(self, request, number, start_system, end_system):
-        return Response(operation.convert(start_system, number, end_system))
+        try:
+            answer = operation.convert(start_system, number, end_system)
+            if answer == 'error':
+                return Response({'answer': answer, 'message': 'You choose invalid number system'})
+            else:
+                return Response({'answer': answer, 'message': 'Success'})
+        except:
+            return Response({'answer': 'error', 'message': 'An unknown error has occurred'})
 
 
 def main_page(request):
     try:
-        number = int(request.GET.get('number'))
+        number = request.GET.get('number')
         start_system = int(request.GET.get('system1'))
         end_system = int(request.GET.get('system2'))
-        if number:
-            print(operation.convert(start_system, number, end_system))
-            return render(request, 'main/main_page.html', {'answer': operation.convert(start_system, number, end_system)})
+        if number and start_system and end_system:
+            answer = operation.convert(start_system, number, end_system)
+            return render(request, 'main/main_page.html', {'answer': answer, 'error': None})
         else:
-            return render(request, 'main/main_page.html', {'answer': '-'})
+            return render(request, 'main/main_page.html', {'answer': None, 'error': None})
     except:
-        return render(request, 'main/main_page.html', {'answer': '-'})
+        return render(request, 'main/main_page.html', {'answer': None, 'error': None})
