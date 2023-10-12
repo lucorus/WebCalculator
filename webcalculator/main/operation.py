@@ -32,29 +32,17 @@ def convert_to_10(start_system: int, number) -> int:
     return answer
 
 
-# разворачиваем строку (если ревёрсить через срез, то 0 спереди пропадают)
-def revers(number):
-    answer = ''
-    for item in range(len(number)-1, -1, -1):
-        answer += number[item]
-    return answer
-
-
 # переводит число из 10 в систему system
 def convert_to_x(system: int, number):
     answer = []
-
+    number = int(number)
     while number >= system:
         answer.append(number % system)
         number = number // system
 
-    #answer = (answer + str(number))
     answer.append(number)
-
     answer = translate_to_letters(answer[::-1])
     return answer
-    # переворачиваем число
-    #return revers(answer)
 
 
 # берёт число и систему счисления и проверяет число на валидность
@@ -74,38 +62,36 @@ def is_valid(number, system) -> bool:
     return True
 
 
-# легко конвертирует число в какую-либо систему
-def convert(start_system: int, number, end_system: int):
+# переводит число в end_system систему
+def convertation(start_system: int, number, end_system: int):
     try:
         number = str(number).upper()
-        if is_valid(number, start_system):
-            if start_system != end_system:
-                if start_system != 10:
-                    number = convert_to_10(start_system, number)
-                    start_system = 10
 
-                if start_system != end_system:
-                    return ''.join(list(map(str, convert_to_x(end_system, number))))
-                else:
-                    return number
+        if start_system != end_system:
+            if start_system != 10:
+                # переводим число в 10 систему
+                number = convert_to_10(start_system, number)
 
-            else:
-                return number
+            return ''.join(list(map(str, convert_to_x(end_system, number))))
+
         else:
-            return 'error'
+            return number
     except:
         return 'error'
 
 
-# подготовка чисел к операции, проведение её (возвращает результат в 10 системе)
-def preparation_for_surgery(number1: int, system1: int, number2: int, system2: int, operation: str):
+# подготовка чисел к операции + проведение её (возвращает результат в 10 системе)
+def calculate(number1, system1: int, number2, system2: int, operation: str):
+    if operation != '+' and operation != '/' and operation != '*' and operation != '-' and operation != '**':
+        return 'unknown operation'
+
     if system1 != 10:
         number1 = convert_to_10(system1, number1)
     if system2 != 10:
         number2 = convert_to_10(system2, number2)
 
     if operation == '/' and number2 == 0:
-        return 0
+        return 'error'
     answer = eval(f'{number1} {operation} {number2}')
     if type(answer) == float:
         answer = round(answer, 2)
