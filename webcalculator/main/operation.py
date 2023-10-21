@@ -1,10 +1,10 @@
 # делим число на отдельные элементы массива
-def divide_number(number) -> list:
+def divide_number(number):
     letter_to_number = {'A': 10, 'B': 11, 'C': 12, 'D': 13, 'E': 14, 'F': 15}
     arr = []
-    for item in str(number):
+    for item in str(number).upper():
         if item in 'ABCDEF':
-           arr.append(letter_to_number[item])
+            arr.append(letter_to_number[item])
         else:
             arr.append(int(item))
 
@@ -21,12 +21,15 @@ def translate_to_letters(number):
 
 
 # конвертирует number из start_system в 10
-def convert_to_10(start_system: int, number) -> int:
+def convert_to_10(start_system: int, number):
+    if not is_valid(number, start_system):
+        return 'error'
+
     number = divide_number(number)[::-1]
     answer = 0
     i = 0
     while len(number) > i:
-        answer += number[i] * (start_system**i)
+        answer += number[i] * (start_system ** i)
         i += 1
 
     return answer
@@ -46,24 +49,30 @@ def convert_to_x(system: int, number):
 
 
 # берёт число и систему счисления и проверяет число на валидность
-def is_valid(number, system) -> bool:
-    letter_to_number = {'A': 10, 'B': 11, 'C': 12, 'D': 13, 'E': 14, 'F': 15}
-    for item in number:
-        if item in '1234567890':
-            if int(item) >= system:
+def is_valid(number, system: int) -> bool:
+    try:
+        letter_to_number = {'A': 10, 'B': 11, 'C': 12, 'D': 13, 'E': 14, 'F': 15}
+        for item in number:
+            if item in '1234567890':
+                if int(item) >= system:
+                    return False
+            # если число записывается в виде буквы, то проверяем есть ли оно в этой системе счисления
+            elif item in letter_to_number.keys():
+                if letter_to_number[item] >= system:
+                    return False
+            # если числа (буквы) нет в словаре, то возвращаем error
+            elif item not in letter_to_number.keys():
                 return False
-        # если число записывается в виде буквы, то проверяем есть ли оно в этой системе счисления
-        elif item in letter_to_number.keys():
-            if letter_to_number[item] >= system:
-                return False
-        # если числа (буквы) нет в словаре, то возвращаем error
-        elif item not in letter_to_number.keys():
-            return False
-    return True
+            return True
+    except:
+        return False
 
 
 # переводит число в end_system систему
 def convertation(start_system: int, number, end_system: int):
+    if not is_valid(number, start_system):
+        return 'error'
+
     try:
         number = str(number).upper()
 
@@ -86,14 +95,14 @@ def calculate(number1, system1: int, number2, system2: int, operation: str):
         return 'unknown operation'
 
     if system1 != 10:
-        number1 = convert_to_10(system1, number1)
+        number1 = convert_to_10(system1, str(number1))
     if system2 != 10:
-        number2 = convert_to_10(system2, number2)
-
-    if operation == '/' and number2 == 0:
+        number2 = convert_to_10(system2, str(number2))
+    try:
+        answer = eval(f'{number1} {operation} {number2}')
+        if type(answer) == float:
+            answer = round(answer, 2)
+        return answer
+    except:
         return 'error'
-    answer = eval(f'{number1} {operation} {number2}')
-    if type(answer) == float:
-        answer = round(answer, 2)
-    return answer
 
